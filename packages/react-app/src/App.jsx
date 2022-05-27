@@ -29,8 +29,10 @@ import externalContracts from "./contracts/external_contracts";
 // contracts
 import deployedContracts from "./contracts/hardhat_contracts.json";
 import { Transactor, Web3ModalSetup } from "./helpers";
-import { Home, ExampleUI, Hints, Subgraph } from "./views";
+import { ExampleUI, Hints, Subgraph } from "./views";
 import { useStaticJsonRPC } from "./hooks";
+import Beneficiaries from "./views/Beneficiaries";
+import Gallery from "./views/Gallery";
 
 const { ethers } = require("ethers");
 /*
@@ -122,6 +124,7 @@ function App(props) {
         setAddress(newAddress);
       }
     }
+
     getAddress();
   }, [userSigner]);
 
@@ -290,27 +293,51 @@ function App(props) {
         <Menu.Item key="/">
           <Link to="/">App Home</Link>
         </Menu.Item>
-        <Menu.Item key="/debug">
-          <Link to="/debug">Debug Contracts</Link>
+        <Menu.Item key="/mint">
+          <Link to="/mint">Mint</Link>
         </Menu.Item>
-        <Menu.Item key="/hints">
-          <Link to="/hints">Hints</Link>
-        </Menu.Item>
-        <Menu.Item key="/exampleui">
-          <Link to="/exampleui">ExampleUI</Link>
-        </Menu.Item>
-        <Menu.Item key="/mainnetdai">
-          <Link to="/mainnetdai">Mainnet DAI</Link>
-        </Menu.Item>
-        <Menu.Item key="/subgraph">
-          <Link to="/subgraph">Subgraph</Link>
+        <Menu.Item key="/gallery">
+          <Link to="/gallery">Gallery</Link>
         </Menu.Item>
       </Menu>
 
       <Switch>
         <Route exact path="/">
           {/* pass in any web3 props to this Home component. For example, yourLocalBalance */}
-          <Home yourLocalBalance={yourLocalBalance} readContracts={readContracts} />
+          {/*<Home yourLocalBalance={yourLocalBalance} readContracts={readContracts} />*/}
+          <div>
+            <div style={{ width: 400, margin: "auto", marginTop: 64 }}>
+              <h2>Soulbound dynamic on-chain NFTs to fund public goods</h2>
+              <p>tl;dr: See hardhat/test/myTest.js for an example of deployment and minting</p>
+              <p>This branch is a demonstration of dynamic SVG NFTs which change according to the contract's state.</p>
+              <p>
+                The <Link to="/mint">Mint</Link> page (views/Beneficiaries.jsx) lets you mint an NFT for each of the
+                available recipients (Austin and Carlos), who represent Public Goods in need of funding.
+              </p>
+              <p>
+                Once an NFT is minted it can be viewed on the <Link to="/gallery">Gallery</Link> page.
+              </p>
+              <p>
+                Enter an amount (in ETH) in the input and click Donate. The Ether will be sent to the recipient, and the
+                NFT will show the updated donation amount.
+              </p>
+              <h3>Merkle Tree</h3>
+              <p>
+                The Merkle tree is generated in the contract deployment script (00_deploy_your_contract.js), and in
+                Beneficiaries.jsx. In practice this would be generated once and reused.
+              </p>
+              <p>
+                The contract could be updated to allow the owner to update the Merkle root, making the recipients list
+                updatable without effecting existing tokens.
+              </p>
+            </div>
+          </div>
+        </Route>
+        <Route exact path="/mint">
+          <Beneficiaries writeContracts={writeContracts} tx={tx} />
+        </Route>
+        <Route exact path="/gallery">
+          <Gallery writeContracts={writeContracts} tx={tx} />
         </Route>
         <Route exact path="/debug">
           {/*

@@ -1,6 +1,7 @@
 // deploy/00_deploy_your_contract.js
 
-const { ethers } = require("hardhat");
+const {ethers} = require("hardhat");
+const {MerkleTree} = require("merkletreejs");
 
 const localChainId = "31337";
 
@@ -12,21 +13,32 @@ const localChainId = "31337";
 //     }, ms)
 //   );
 
-module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
-  const { deploy } = deployments;
-  const { deployer } = await getNamedAccounts();
+module.exports = async ({getNamedAccounts, deployments, getChainId}) => {
+  const {deploy} = deployments;
+  const {deployer} = await getNamedAccounts();
   const chainId = await getChainId();
 
-  await deploy("YourContract", {
+  const addresses = [
+    "0x60583563D5879C2E59973E5718c7DE2147971807", // Carlos
+    "0x34aa3f359a9d614239015126635ce7732c18fdf3", // Austin
+  ];
+  const merkleTree = new MerkleTree(
+    addresses.map((x) => ethers.utils.keccak256(x)),
+    ethers.utils.keccak256,
+    {sortPairs: true}
+  );
+
+  await deploy("Items", {
     // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
     from: deployer,
-    // args: [ "Hello", ethers.utils.parseEther("1.5") ],
+    args: ["Philanphropist", "PHIL", merkleTree.getHexRoot()],
     log: true,
     waitConfirmations: 5,
   });
 
   // Getting a previously deployed contract
-  const YourContract = await ethers.getContract("YourContract", deployer);
+  const ItemsContract = await ethers.getContract("Items", deployer);
+
   /*  await YourContract.setPurpose("Hello");
   
     To take ownership of yourContract using the ownable library uncomment next line and add the 
